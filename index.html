@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Meme 喜加 1 - 币安 Web3 盲盒</title>
+    <script src="https://cdn.ethers.io/lib/ethers-5.2.umd.min.js"></script>
+    <style>
+        body { font-family: sans-serif; background: #121212; color: white; text-align: center; padding: 20px; }
+        .btn { background: #F3BA2F; color: black; border: none; padding: 15px 30px; margin: 10px; border-radius: 8px; font-weight: bold; cursor: pointer; width: 80%; max-width: 300px; }
+        .grid { display: flex; flex-wrap: wrap; justify-content: center; }
+        #status { margin-top: 20px; color: #aaa; }
+    </style>
+</head>
+<body>
+    <h1>Meme 喜加 1 盲盒</h1>
+    <p>抽取属于你的币圈“全家桶”</p>
+    
+    <button id="connectBtn" class="btn">连接币安钱包</button>
+    
+    <div class="grid">
+        <button class="btn buy-btn" data-price="0.001">入门灰尘包 (0.001 BNB)</button>
+        <button class="btn buy-btn" data-price="0.005">进阶惊喜包 (0.005 BNB)</button>
+        <button class="btn buy-btn" data-price="0.01">暴富潜力包 (0.01 BNB)</button>
+        </div>
+
+    <div id="status">未连接</div>
+
+    <script>
+        let provider, signer;
+        const RECEIVER_ADDRESS = "你的收款地址"; // 替换为你的钱包地址
+
+        async function connect() {
+            if (window.ethereum) {
+                provider = new ethers.providers.Web3Provider(window.ethereum);
+                await provider.send("eth_requestAccounts", []);
+                signer = provider.getSigner();
+                const addr = await signer.getAddress();
+                document.getElementById('status').innerText = "已连接: " + addr.slice(0,6) + "...";
+            } else {
+                alert("请在币安 Web3 钱包中打开此页面");
+            }
+        }
+
+        async function buy(price) {
+            if (!signer) return alert("请先连接钱包");
+            try {
+                document.getElementById('status').innerText = "正在发起支付...";
+                const tx = await signer.sendTransaction({
+                    to: RECEIVER_ADDRESS,
+                    value: ethers.utils.parseEther(price)
+                });
+                document.getElementById('status').innerText = "支付成功，等待发货！Hash: " + tx.hash.slice(0,10);
+                // 这里可以调用你的后端 API，告知 TX Hash
+                console.log("Transaction Hash:", tx.hash);
+            } catch (err) {
+                console.error(err);
+                document.getElementById('status').innerText = "支付取消或失败";
+            }
+        }
+
+        document.getElementById('connectBtn').onclick = connect;
+        document.querySelectorAll('.buy-btn').forEach(btn => {
+            btn.onclick = () => buy(btn.getAttribute('data-price'));
+        });
+    </script>
+</body>
+</html>

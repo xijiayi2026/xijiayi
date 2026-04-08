@@ -1,68 +1,377 @@
 <!DOCTYPE html>
 <html lang="zh-CN">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Meme 喜加 1 - 币安 Web3 盲盒</title>
-    <script src="https://cdn.ethers.io/lib/ethers-5.2.umd.min.js"></script>
-    <style>
-        body { font-family: sans-serif; background: #121212; color: white; text-align: center; padding: 20px; }
-        .btn { background: #F3BA2F; color: black; border: none; padding: 15px 30px; margin: 10px; border-radius: 8px; font-weight: bold; cursor: pointer; width: 80%; max-width: 300px; }
-        .grid { display: flex; flex-wrap: wrap; justify-content: center; }
-        #status { margin-top: 20px; color: #aaa; }
-    </style>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>欢乐喜加一 · BSC</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@400;600;700&family=JetBrains+Mono:wght@500&display=swap" rel="stylesheet" />
+  <style>
+    :root {
+      --bg: #0c0e14; --surface: #151923; --border: #2a3142;
+      --text: #e8ecf4; --muted: #8b95a8; --accent: #f0b429;
+      --accent-dim: #c4921f; --success: #3dd68c; --danger: #ff6b6b;
+      --radius: 14px;
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: "Noto Sans SC", system-ui, sans-serif; background: var(--bg); color: var(--text); min-height: 100vh; line-height: 1.5; }
+    .noise { pointer-events: none; position: fixed; inset: 0; opacity: 0.04; background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E"); }
+    .wrap { max-width: 1100px; margin: 0 auto; padding: 2rem 1.25rem 4rem; }
+    header { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 1rem; margin-bottom: 2rem; }
+    .brand { display: flex; align-items: center; gap: 0.75rem; }
+    .logo { width: 48px; height: 48px; border-radius: 12px; background: linear-gradient(135deg, var(--accent), #ff8c42); display: grid; place-items: center; font-weight: 700; font-size: 1.1rem; color: #1a1206; }
+    h1 { font-size: 1.5rem; font-weight: 700; }
+    .subtitle { font-size: 0.875rem; color: var(--muted); margin-top: 0.15rem; }
+    .wallet-bar { display: flex; flex-wrap: wrap; align-items: center; gap: 0.5rem; }
+    button { font-family: inherit; cursor: pointer; border: none; border-radius: 10px; font-weight: 600; font-size: 0.9rem; transition: transform 0.12s ease, background 0.15s ease, opacity 0.15s; }
+    button:active { transform: scale(0.98); }
+    button:disabled { opacity: 0.45; cursor: not-allowed; }
+    .btn-primary { background: linear-gradient(180deg, var(--accent), var(--accent-dim)); color: #1a1206; padding: 0.6rem 1.1rem; }
+    .btn-primary:hover:not(:disabled) { filter: brightness(1.08); }
+    .btn-ghost { background: var(--surface); color: var(--text); border: 1px solid var(--border); padding: 0.55rem 1rem; }
+    .btn-ghost:hover:not(:disabled) { border-color: var(--muted); }
+    .pill { font-family: "JetBrains Mono", monospace; font-size: 0.75rem; padding: 0.35rem 0.65rem; border-radius: 999px; background: var(--surface); border: 1px solid var(--border); color: var(--muted); }
+    .pill.ok { border-color: var(--success); color: var(--success); }
+    .pill.warn { border-color: var(--accent); color: var(--accent); }
+    .info-panel { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); padding: 1rem 1.25rem; margin-bottom: 1.75rem; font-size: 0.875rem; color: var(--muted); }
+    .info-panel strong { color: var(--text); }
+    .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap: 1rem; }
+    .card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); padding: 1.25rem; display: flex; flex-direction: column; gap: 0.75rem; }
+    .card:hover { border-color: #3d4659; }
+    .price { font-family: "JetBrains Mono", monospace; font-size: 1.35rem; font-weight: 700; color: var(--accent); }
+    .tier-name { font-size: 1rem; font-weight: 600; }
+    .meme-list { font-size: 0.8rem; color: var(--muted); list-style: none; }
+    .meme-list li { padding: 0.2rem 0; padding-left: 1rem; position: relative; }
+    .meme-list li::before { content: "◆"; position: absolute; left: 0; color: var(--accent-dim); font-size: 0.55rem; top: 0.45rem; }
+    .card .btn-primary { width: 100%; margin-top: auto; padding: 0.65rem; }
+    .log { margin-top: 2rem; padding: 1rem; border-radius: var(--radius); background: #0a0c10; border: 1px solid var(--border); font-family: "JetBrains Mono", monospace; font-size: 0.75rem; color: var(--muted); max-height: 160px; overflow-y: auto; white-space: pre-wrap; word-break: break-all; }
+    .log .e { color: var(--danger); }
+    .log .s { color: var(--success); }
+    footer { margin-top: 2rem; font-size: 0.75rem; color: var(--muted); text-align: center; }
+    
+    /* 钱包选择弹层 */
+    .modal-backdrop { display: none; position: fixed; inset: 0; background: rgba(0, 0, 0, 0.65); z-index: 1000; align-items: center; justify-content: center; padding: 1rem; }
+    .modal-backdrop.open { display: flex; }
+    .modal { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); max-width: 400px; width: 100%; max-height: 80vh; overflow: hidden; display: flex; flex-direction: column; }
+    .modal h2 { font-size: 1rem; padding: 1rem 1.25rem; border-bottom: 1px solid var(--border); }
+    .modal-list { overflow-y: auto; padding: 0.5rem; }
+    .wallet-option { display: flex; align-items: center; gap: 0.75rem; width: 100%; padding: 0.75rem 1rem; border: 1px solid transparent; border-radius: 10px; background: transparent; color: var(--text); text-align: left; cursor: pointer; font-size: 0.95rem; }
+    .wallet-option:hover { background: #1c2230; border-color: var(--border); }
+    .wallet-option img { width: 32px; height: 32px; border-radius: 8px; }
+    .modal-actions { padding: 0.75rem 1rem; border-top: 1px solid var(--border); display: flex; justify-content: flex-end; }
+    .wallet-name-tag { font-size: 0.7rem; color: var(--muted); margin-top: 0.15rem; }
+  </style>
 </head>
 <body>
-    <h1>Meme 喜加 1 盲盒</h1>
-    <p>抽取属于你的币圈“全家桶”</p>
-    
-    <button id="connectBtn" class="btn">连接币安钱包</button>
-    
-    <div class="grid">
-        <button class="btn buy-btn" data-price="0.001">入门灰尘包 (0.001 BNB)</button>
-        <button class="btn buy-btn" data-price="0.005">进阶惊喜包 (0.005 BNB)</button>
-        <button class="btn buy-btn" data-price="0.01">暴富潜力包 (0.01 BNB)</button>
+  <div class="noise" aria-hidden="true"></div>
+  <div class="wrap">
+    <header>
+      <div class="brand">
+        <div class="logo">+1</div>
+        <div>
+          <h1>欢乐喜加一</h1>
+          <p class="subtitle">仅限 BSC 链上支付 · 套餐对应 Meme 盲盒礼包</p>
         </div>
+      </div>
+      <div class="wallet-bar">
+        <span id="netPill" class="pill">未连接网络</span>
+        <span id="addrPill" class="pill" hidden>—</span>
+        <button type="button" class="btn-ghost" id="btnConnect">连接钱包</button>
+        <button type="button" class="btn-ghost" id="btnDisconnect" hidden>断开</button>
+      </div>
+    </header>
 
-    <div id="status">未连接</div>
+    <div class="info-panel">
+      <strong>严格说明：</strong>本系统强制要求使用 <strong>BSC 主网（chainId 56）</strong>。连接钱包后会自动请求切换至 BSC 网络。若拒绝切换或不在 BSC 网络，将无法发起支付交易。
+    </div>
 
-    <script>
-        let provider, signer;
-        const RECEIVER_ADDRESS = "你的收款地址"; // 替换为你的钱包地址
+    <section class="grid" id="packageGrid" aria-label="套餐列表"></section>
 
-        async function connect() {
-            if (window.ethereum) {
-                provider = new ethers.providers.Web3Provider(window.ethereum);
-                await provider.send("eth_requestAccounts", []);
-                signer = provider.getSigner();
-                const addr = await signer.getAddress();
-                document.getElementById('status').innerText = "已连接: " + addr.slice(0,6) + "...";
-            } else {
-                alert("请在币安 Web3 钱包中打开此页面");
-            }
-        }
+    <div class="log" id="logBox" role="log" aria-live="polite">等待操作…</div>
+    <footer>欢乐喜加一 · BSC 主网专属 · 系统已就绪</footer>
+  </div>
 
-        async function buy(price) {
-            if (!signer) return alert("请先连接钱包");
-            try {
-                document.getElementById('status').innerText = "正在发起支付...";
-                const tx = await signer.sendTransaction({
-                    to: RECEIVER_ADDRESS,
-                    value: ethers.utils.parseEther(price)
-                });
-                document.getElementById('status').innerText = "支付成功，等待发货！Hash: " + tx.hash.slice(0,10);
-                // 这里可以调用你的后端 API，告知 TX Hash
-                console.log("Transaction Hash:", tx.hash);
-            } catch (err) {
-                console.error(err);
-                document.getElementById('status').innerText = "支付取消或失败";
-            }
-        }
+  <div class="modal-backdrop" id="walletModal">
+    <div class="modal">
+      <h2 id="walletModalTitle">选择钱包</h2>
+      <div class="modal-list" id="walletModalList"></div>
+      <div class="modal-actions">
+        <button type="button" class="btn-ghost" id="walletModalCancel">取消</button>
+      </div>
+    </div>
+  </div>
 
-        document.getElementById('connectBtn').onclick = connect;
-        document.querySelectorAll('.buy-btn').forEach(btn => {
-            btn.onclick = () => buy(btn.getAttribute('data-price'));
+  <script>
+    /** ==========================================
+     * ⚠️ 配置区：请务必替换为你的真实 BSC 收款地址
+     * ========================================== */
+    const RECIPIENT_ADDRESS = "0x0000000000000000000000000000000000000000";
+
+    const BSC_CHAIN = {
+      chainId: "0x38",
+      chainIdDecimal: 56,
+      chainName: "BNB Smart Chain Mainnet",
+      nativeCurrency: { name: "BNB", symbol: "BNB", decimals: 18 },
+      rpcUrls: ["https://bsc-dataseed.binance.org/"],
+      blockExplorerUrls: ["https://bscscan.com/"],
+    };
+
+    const PACKAGES = [
+      { id: "p1", priceBnb: "0.001", title: "入门灰尘包", memes: ["保底 50 种残留代币", "快速填满钱包"] },
+      { id: "p2", priceBnb: "0.005", title: "进阶惊喜包", memes: ["随机包含 2 种蓝筹 Meme", "大量长尾代币"] },
+      { id: "p3", priceBnb: "0.01", title: "暴富潜力包", memes: ["热门土狗币 ×3", "1% 概率爆出百倍币"] },
+      { id: "p4", priceBnb: "0.05", title: "重度玩家包", memes: ["高流通量 Meme ×5", "专属社群门票"] },
+      { id: "p5", priceBnb: "0.1", title: "鲸鱼收藏包", memes: ["精选高市值 Meme", "优先溢价回收权"] },
+      { id: "p6", priceBnb: "0.5", title: "传说大礼包", memes: ["必得 1 种现象级金狗", "全库 Meme 池空投"] },
+    ];
+
+    const logEl = document.getElementById("logBox");
+    const netPill = document.getElementById("netPill");
+    const addrPill = document.getElementById("addrPill");
+    const btnConnect = document.getElementById("btnConnect");
+    const btnDisconnect = document.getElementById("btnDisconnect");
+    const walletModal = document.getElementById("walletModal");
+    const walletModalList = document.getElementById("walletModalList");
+    const walletModalCancel = document.getElementById("walletModalCancel");
+
+    let activeProvider = null;
+    let connectedAccount = null;
+    let listenersBound = false;
+    const eip6963Providers = new Map();
+
+    function log(msg, type) {
+      const line = document.createElement("div");
+      if (type) line.className = type;
+      line.textContent = `[${new Date().toLocaleTimeString()}] ${msg}`;
+      logEl.appendChild(line);
+      logEl.scrollTop = logEl.scrollHeight;
+    }
+
+    function shortAddr(a) { return a ? `${a.slice(0, 6)}…${a.slice(-4)}` : ""; }
+    
+    function isBscMainnet(chainIdHex) {
+      if (!chainIdHex) return false;
+      try { return BigInt(chainIdHex).toString() === String(BSC_CHAIN.chainIdDecimal); } catch { return false; }
+    }
+
+    function getEthereum() { return activeProvider || window.ethereum || null; }
+
+    function initEIP6963() {
+      window.addEventListener("eip6963:announceProvider", (ev) => {
+        const d = ev.detail;
+        if (d && d.info && d.provider) eip6963Providers.set(d.info.uuid, d);
+      });
+      window.dispatchEvent(new Event("eip6963:requestProvider"));
+    }
+
+    function getLegacyProviderList() {
+      const eth = window.ethereum;
+      if (!eth) return [];
+      return (Array.isArray(eth.providers) && eth.providers.length > 0) ? eth.providers : [eth];
+    }
+
+    function buildWalletChoices() {
+      const choices = [];
+      for (const [, detail] of eip6963Providers) {
+        choices.push({ id: detail.info.uuid, name: detail.info.name || "Wallet", icon: detail.info.icon, provider: detail.provider });
+      }
+      if (choices.length === 0) {
+        getLegacyProviderList().forEach((p, i) => {
+          choices.push({ id: `legacy-${i}`, name: p.isMetaMask ? "MetaMask" : `浏览器钱包 ${i + 1}`, provider: p });
         });
-    </script>
+      }
+      return choices;
+    }
+
+    function openWalletModal(choices, resolve) {
+      walletModalList.innerHTML = "";
+      let settled = false;
+      const cleanup = () => { walletModal.classList.remove("open"); };
+      const finish = (fn) => { if (settled) return; settled = true; cleanup(); fn(); };
+      
+      choices.forEach((c) => {
+        const btn = document.createElement("button");
+        btn.className = "wallet-option";
+        const img = c.icon ? `<img src="${c.icon}" alt="" />` : `<span style="width:32px;height:32px;border-radius:8px;background:var(--border);display:inline-block"></span>`;
+        btn.innerHTML = `${img}<span><div>${c.name}</div></span>`;
+        btn.onclick = () => finish(() => resolve(c.provider));
+        walletModalList.appendChild(btn);
+      });
+      walletModal.classList.add("open");
+      walletModalCancel.onclick = () => finish(() => resolve(null));
+    }
+
+    function pickProvider() {
+      return new Promise((resolve) => {
+        const choices = buildWalletChoices();
+        if (choices.length === 0) {
+          log("未检测到钱包扩展，请在支持 Web3 的浏览器中打开。", "e");
+          resolve(null);
+        } else if (choices.length === 1) {
+          resolve(choices[0].provider);
+        } else {
+          openWalletModal(choices, resolve);
+        }
+      });
+    }
+
+    function bindProviderEvents(eth) {
+      if (listenersBound || !eth) return;
+      listenersBound = true;
+      eth.on("chainChanged", () => refreshNetworkPill());
+      eth.on("accountsChanged", (accs) => {
+        if (!accs || accs.length === 0) disconnect();
+        else {
+          connectedAccount = accs[0];
+          addrPill.textContent = shortAddr(connectedAccount);
+          refreshNetworkPill();
+        }
+      });
+    }
+
+    async function refreshNetworkPill() {
+      const eth = getEthereum();
+      if (!eth || !connectedAccount) {
+        netPill.textContent = "未连接"; netPill.className = "pill"; return;
+      }
+      try {
+        const id = await eth.request({ method: "eth_chainId" });
+        if (isBscMainnet(id)) {
+          netPill.textContent = "BSC 主网已连接"; netPill.className = "pill ok";
+        } else {
+          netPill.textContent = "网络错误 (非 BSC)"; netPill.className = "pill warn";
+        }
+      } catch (e) {
+        netPill.textContent = "无法读取链状态"; netPill.className = "pill warn";
+      }
+    }
+
+    async function switchToBsc(eth) {
+      const e = eth || getEthereum();
+      if (!e) throw new Error("Wallet not found");
+      
+      const currentChainId = await e.request({ method: "eth_chainId" });
+      if (isBscMainnet(currentChainId)) return true; // 已经是 BSC，直接返回
+
+      log("正在请求切换至 BSC 主网...", "");
+      try {
+        await e.request({ method: "wallet_switchEthereumChain", params: [{ chainId: BSC_CHAIN.chainId }] });
+        return true;
+      } catch (err) {
+        if (err.code === 4902) {
+          try {
+            await e.request({ method: "wallet_addEthereumChain", params: [BSC_CHAIN] });
+            return true;
+          } catch (addErr) {
+            throw new Error("用户拒绝添加 BSC 网络");
+          }
+        }
+        throw new Error("用户拒绝切换网络");
+      }
+    }
+
+    async function connect() {
+      try {
+        const eth = await pickProvider();
+        if (!eth) return;
+        activeProvider = eth;
+        bindProviderEvents(eth);
+        const accounts = await eth.request({ method: "eth_requestAccounts" });
+        connectedAccount = accounts[0];
+        
+        addrPill.hidden = false;
+        addrPill.textContent = shortAddr(connectedAccount);
+        btnDisconnect.hidden = false;
+        log(`钱包已连接: ${shortAddr(connectedAccount)}`, "s");
+        
+        await switchToBsc(eth);
+        await refreshNetworkPill();
+      } catch (e) {
+        log(`连接中断: ${e.message}`, "e");
+        disconnect(); // 强制断开，防止处于错误链状态
+      }
+    }
+
+    function disconnect() {
+      activeProvider = null; connectedAccount = null; listenersBound = false;
+      addrPill.hidden = true; btnDisconnect.hidden = true;
+      refreshNetworkPill();
+      log("已断开连接。", "");
+    }
+
+    function bnbStringToHexWei(s) {
+      const parts = String(s).trim().split(".");
+      const whole = parts[0] || "0";
+      const frac = (parts[1] || "").padEnd(18, "0").slice(0, 18);
+      const bi = BigInt(whole) * 10n ** 18n + BigInt(frac || "0");
+      return "0x" + bi.toString(16);
+    }
+
+    async function buyPackage(pkg) {
+      const eth = getEthereum();
+      if (!eth || !connectedAccount) return log("请先点击右上角连接钱包。", "e");
+      if (RECIPIENT_ADDRESS === "0x0000000000000000000000000000000000000000") return log("系统未配置收款地址，支付已拦截。", "e");
+
+      try {
+        // 强制再次校验网络，防止用户连接后手动在钱包里切走了链
+        await switchToBsc(eth);
+        await refreshNetworkPill();
+        
+        const id = await eth.request({ method: "eth_chainId" });
+        if (!isBscMainnet(id)) throw new Error("非 BSC 网络，已拦截交易");
+
+        const valueHex = bnbStringToHexWei(pkg.priceBnb);
+        log(`正在唤起支付: ${pkg.priceBnb} BNB ...`, "");
+
+        const txHash = await eth.request({
+          method: "eth_sendTransaction",
+          params: [{ from: connectedAccount, to: RECIPIENT_ADDRESS, value: valueHex }]
+        });
+        
+        log(`支付成功！TxHash: ${txHash}`, "s");
+      } catch (e) {
+        log(`交易失败: ${e.message}`, "e");
+      }
+    }
+
+    function renderPackages() {
+      const grid = document.getElementById("packageGrid");
+      PACKAGES.forEach((pkg) => {
+        const card = document.createElement("article");
+        card.className = "card";
+        card.innerHTML = `
+          <div class="price">${pkg.priceBnb} BNB</div>
+          <div class="tier-name">${pkg.title}</div>
+          <ul class="meme-list">${pkg.memes.map((m) => `<li>${m}</li>`).join("")}</ul>
+          <button type="button" class="btn-primary">购买此套餐</button>
+        `;
+        card.querySelector("button").onclick = () => buyPackage(pkg);
+        grid.appendChild(card);
+      });
+    }
+
+    btnConnect.onclick = connect;
+    btnDisconnect.onclick = disconnect;
+    renderPackages();
+    initEIP6963();
+    
+    // 页面加载完成后尝试静默连接
+    setTimeout(async () => {
+      const eth = window.ethereum;
+      if (eth) {
+        try {
+          const accs = await eth.request({ method: "eth_accounts" });
+          if (accs && accs.length > 0) {
+            activeProvider = eth; bindProviderEvents(eth); connectedAccount = accs[0];
+            addrPill.hidden = false; addrPill.textContent = shortAddr(connectedAccount);
+            btnDisconnect.hidden = false;
+            await refreshNetworkPill();
+            log(`检测到已授权钱包，自动连接。`, "s");
+          }
+        } catch(e){}
+      }
+    }, 500);
+  </script>
 </body>
 </html>
